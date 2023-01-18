@@ -5,7 +5,7 @@ mod config;
 fn main() -> Result<()> {
     let cfg = config::IndexConfig::new()?;
 
-    println!("Hello, world!");
+    println!("{:?}", cfg);
 
     Ok(())
 }

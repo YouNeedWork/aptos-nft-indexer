@@ -2,12 +2,18 @@ use anyhow::{anyhow, Result};
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct IndexConfig {}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IndexConfig {
+    pub posgres: String,
+    pub work_number: i32,
+}
 
 impl Default for IndexConfig {
     fn default() -> Self {
-        Self {}
+        Self {
+            posgres: "".to_string(),
+            work_number: 4,
+        }
     }
 }
 
