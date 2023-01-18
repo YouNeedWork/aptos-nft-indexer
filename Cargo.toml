@@ -6,4 +6,9 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.68"
 config = "0.13.1"
+aws-config = "0.53.0"
+aws-sdk-s3 = "0.23.0"
+tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+env_logger = "0.10.0"
