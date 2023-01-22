@@ -1,22 +1,25 @@
 use anyhow::Result;
-use tokio::runtime::Runtime;
-use tokio::{task, task::JoinHandle};
+use tokio::{runtime::Handle, task::JoinHandle};
 
 use crate::config::IndexConfig;
+
+#[derive(Debug, Clone)]
 pub struct Service {}
 
 impl Service {
-    pub async fn run(&self) -> Result<()> {
+    pub async fn run(&self, runtime_handle: &Handle) -> Result<()> {
+        runtime_handle.spawn(async move {});
         Ok(())
     }
 }
 
-pub struct IndexerService {
-    cfg: IndexConfig,
+#[derive(Debug, Clone)]
+pub struct IndexerService<'a> {
+    cfg: IndexConfig<'a>,
     servers: Vec<Service>,
 }
 
-impl IndexerService {
+impl<'a> IndexerService<'a> {
     pub fn new(cfg: IndexConfig) -> Self {
         log::info!("IndexService init");
         Self {
@@ -27,10 +30,19 @@ impl IndexerService {
 
     pub fn run(&self) -> Result<()> {
         log::info!("IndexService Runing");
+        use tokio::runtime::Builder;
 
-        let rt = Runtime::new()?;
+        let rt = Builder::new_multi_thread()
+            .worker_threads(self.cfg.work_number as usize)
+            .thread_name("Tokio-Runtime")
+            .thread_stack_size(3 * 1024 * 1024)
+            .build()
+            .unwrap();
 
-        rt.block_on(async move { self.start_indexer().await });
+        //rt.block_on(async move { self.start_indexer().await });
+        for service in self.servers {
+            service.run(rt.handle());
+        }
 
         log::info!("IndexService Ended");
         Ok(())
@@ -38,13 +50,12 @@ impl IndexerService {
 
     async fn start_indexer(&self) -> Result<()> {
         // start all indexer include fetch nft collection,metadata,owner,rolay,creater address, more table.
+        // let servers = self.servers.clone();
 
-        // let services_joinhandle = s
-        //     .servers
+        // let services_joinhandle = servers
         //     .iter()
-        //     .collect::<Vec<JoinHandle<()>>>();
-
-        todo!();
+        //     .map(|e| tokio::spawn(async move { e.run().await }))
+        //     .collect::<Vec<JoinHandle<Result<()>>>>();
 
         Ok(())
     }
