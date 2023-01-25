@@ -5,9 +5,12 @@ use async_trait::async_trait;
 
 use crate::config::IndexConfig;
 
+pub mod aptos_indexer;
+
+
 #[async_trait]
-trait Service {
-   async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>>;
+pub trait Service {
+    async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>>;
 }
 
 pub struct IndexerService {

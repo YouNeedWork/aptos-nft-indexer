@@ -5,7 +5,7 @@ mod service;
 mod worker;
 
 use service::IndexerService;
-
+use service::aptos_indexer::AptosNFTService;
 
 fn main() -> Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
@@ -16,7 +16,12 @@ fn main() -> Result<()> {
 }
 
 fn run_all(cfg: config::IndexConfig) -> Result<()> {
-    let mut service:IndexerService = IndexerService::new(cfg);
+    let mut service: IndexerService = IndexerService::new(cfg);
+    
+    let nft = AptosNFTService::new();
+    
+    service.add_server(Box::new(nft));
+    
     service.run()
 }
 
