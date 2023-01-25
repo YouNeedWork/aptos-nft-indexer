@@ -1,33 +1,31 @@
 use anyhow::Result;
+use std::future::Future;
 use tokio::{runtime::Handle, task::JoinHandle};
+use async_trait::async_trait;
 
 use crate::config::IndexConfig;
 
-#[derive(Debug, Clone)]
-pub struct Service {}
-
-impl Service {
-    pub async fn run(&self, runtime_handle: &Handle) -> Result<()> {
-        runtime_handle.spawn(async move {});
-        Ok(())
-    }
+#[async_trait]
+trait Service {
+   async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>>;
 }
 
-#[derive(Debug, Clone)]
-pub struct IndexerService<'a> {
-    cfg: IndexConfig<'a>,
-    servers: Vec<Service>,
+pub struct IndexerService {
+    cfg: IndexConfig,
+    servers: Vec<Box<dyn Service>>,
 }
 
-impl<'a> IndexerService<'a> {
+
+impl IndexerService {
     pub fn new(cfg: IndexConfig) -> Self {
         log::info!("IndexService init");
+	
         Self {
             cfg,
             servers: vec![],
         }
     }
-
+    
     pub fn run(&self) -> Result<()> {
         log::info!("IndexService Runing");
         use tokio::runtime::Builder;
@@ -36,27 +34,29 @@ impl<'a> IndexerService<'a> {
             .worker_threads(self.cfg.work_number as usize)
             .thread_name("Tokio-Runtime")
             .thread_stack_size(3 * 1024 * 1024)
+            .enable_time()
             .build()
             .unwrap();
 
-        //rt.block_on(async move { self.start_indexer().await });
-        for service in self.servers {
-            service.run(rt.handle());
-        }
+        let services = self
+            .servers
+            .iter()
+            .map(|service| service.run(rt.handle()))
+            .collect::<Vec<_>>();
+
+        rt.block_on(async move {
+            for s in services {
+                s.await;
+            }
+	    
+            loop {}
+        });
 
         log::info!("IndexService Ended");
         Ok(())
     }
 
-    async fn start_indexer(&self) -> Result<()> {
-        // start all indexer include fetch nft collection,metadata,owner,rolay,creater address, more table.
-        // let servers = self.servers.clone();
-
-        // let services_joinhandle = servers
-        //     .iter()
-        //     .map(|e| tokio::spawn(async move { e.run().await }))
-        //     .collect::<Vec<JoinHandle<Result<()>>>>();
-
-        Ok(())
+    pub fn add_server(&mut self, s: Box<dyn Service>) {
+        self.servers.push(s)
     }
 }
