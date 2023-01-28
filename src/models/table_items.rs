@@ -5,8 +5,6 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use serde::{Deserialize, Serialize};
 
-use tracing::info;
-
 use crate::schema;
 use schema::*;
 
@@ -49,8 +47,6 @@ pub fn query_items_by_handle(
     hash: &str,
 ) -> Result<Vec<TableItem>> {
     use crate::schema::table_items::dsl::*;
-
-    info!("Querying handle by hash");
 
     table_items::table()
         .filter(table_handle.eq(hash))

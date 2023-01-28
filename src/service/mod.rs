@@ -1,6 +1,5 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use std::future::Future;
 use tokio::{runtime::Handle, task::JoinHandle};
 
 use crate::config::IndexConfig;

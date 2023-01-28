@@ -7,15 +7,6 @@ use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-
-
-
-
-
-
-
-
-
 #[derive(Debug, Queryable, Deserialize, FieldCount, Serialize)]
 #[diesel(primary_key(token_data_id_hash, property_version, owner_address))]
 #[diesel(table_name = current_token_ownerships)]

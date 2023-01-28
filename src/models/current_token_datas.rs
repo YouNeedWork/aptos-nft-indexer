@@ -8,13 +8,7 @@ use field_count::FieldCount;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-
-use tracing::info;
-
 use crate::models::current_token_ownerships::CurrentTokenOwnership;
-
-
-
 
 #[derive(Debug, Queryable, Deserialize, FieldCount, Serialize)]
 #[diesel(primary_key(token_data_id_hash))]
@@ -48,7 +42,6 @@ pub fn query_nfts_by_collection(
 ) -> Result<Vec<CurrentTokenData>> {
     use crate::schema::current_token_datas::dsl::*;
 
-    info!("Querying nfts by collection");
     // collection_data_id_hash
     let results = current_token_datas
         .filter(creator_address.eq(address))

@@ -2,6 +2,8 @@ use anyhow::Result;
 
 mod config;
 mod db;
+mod models;
+mod schema;
 mod service;
 mod worker;
 

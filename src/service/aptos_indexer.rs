@@ -1,5 +1,6 @@
 use crate::config::IndexConfig;
 use crate::db::DbPool;
+use crate::models::current_collection_datas;
 use crate::service::Service;
 
 use anyhow::Result;
@@ -36,8 +37,17 @@ impl Service for AptosNFTService {
                 use tokio::time::Duration;
                 info!("start fetch nfts");
                 //fetch market db for last_version
+                let mut db = indexer_db
+                    .get()
+                    .expect("couldn't get db connection from pool");
 
                 //and fetch bigger then last_version colleact. and issert or repeact
+                let collections =
+                    current_collection_datas::query_bigger_then_version(db, 0).unwrap();
+
+                for collection in collections {
+                    dbg!(&collection);
+                }
 
                 info!("end fetch nfts");
                 tokio::time::sleep(Duration::from_millis(100)).await;
