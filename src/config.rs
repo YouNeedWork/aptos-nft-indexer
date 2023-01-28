@@ -4,14 +4,16 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IndexConfig {
-    pub posgres: String,
+    pub market_posgres: String,
+    pub indexer_db_posgres: String,
     pub work_number: i32,
 }
 
 impl Default for IndexConfig {
     fn default() -> Self {
         Self {
-            posgres: "".to_string(),
+            market_posgres: String::from(""),
+            indexer_db_posgres: String::from(""),
             work_number: 4,
         }
     }

@@ -1,11 +1,12 @@
 use anyhow::Result;
 
 mod config;
+mod db;
 mod service;
 mod worker;
 
-use service::IndexerService;
 use service::aptos_indexer::AptosNFTService;
+use service::IndexerService;
 
 fn main() -> Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
@@ -16,17 +17,12 @@ fn main() -> Result<()> {
 }
 
 fn run_all(cfg: config::IndexConfig) -> Result<()> {
-    let mut service: IndexerService = IndexerService::new(cfg);
-    
-    let nft = AptosNFTService::new();
-    
-    service.add_server(Box::new(nft));
-    
-    service.run()
-}
+    let mut service: IndexerService = IndexerService::new(cfg.clone());
 
-#[test]
-fn test_run_main() {
-    let cfg = config::IndexConfig::default();
-    todo!();
+    let indexer_db = db::get_connection_pool(&cfg.indexer_db_posgres);
+
+    let nft = AptosNFTService::new(cfg.clone(), indexer_db);
+
+    service.add_server(Box::new(nft));
+    service.run()
 }

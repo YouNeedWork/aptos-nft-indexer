@@ -1,12 +1,14 @@
 use tokio::task::JoinHandle;
 
 pub enum Worker {
-    Default,
+    NFTS,
+    METADATAS,
+    OWNER,
 }
 
 impl Worker {
     pub fn new() -> Self {
-        Self::Default
+        Self::NFTS
     }
 }
 
@@ -18,9 +20,4 @@ impl WorkerService {
     pub fn new() -> Self {
         Self { workers: vec![] }
     }
-}
-
-#[test]
-fn new_worker_service() {
-    todo!();
 }

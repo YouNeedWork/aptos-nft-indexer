@@ -1,2 +1,3 @@
-posgres: ""
+market_posgres: "postgres://postgres:!Woaini521@localhost/postgres"
+indexer_db_posgres: "postgres://postgres:!Woaini521@localhost/postgres"
 work_number: 16

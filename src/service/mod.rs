@@ -1,12 +1,11 @@
 use anyhow::Result;
+use async_trait::async_trait;
 use std::future::Future;
 use tokio::{runtime::Handle, task::JoinHandle};
-use async_trait::async_trait;
 
 use crate::config::IndexConfig;
 
 pub mod aptos_indexer;
-
 
 #[async_trait]
 pub trait Service {
@@ -18,17 +17,16 @@ pub struct IndexerService {
     servers: Vec<Box<dyn Service>>,
 }
 
-
 impl IndexerService {
     pub fn new(cfg: IndexConfig) -> Self {
         log::info!("IndexService init");
-	
+
         Self {
             cfg,
             servers: vec![],
         }
     }
-    
+
     pub fn run(&self) -> Result<()> {
         log::info!("IndexService Runing");
         use tokio::runtime::Builder;
@@ -51,7 +49,7 @@ impl IndexerService {
             for s in services {
                 s.await;
             }
-	    
+
             loop {}
         });
 
