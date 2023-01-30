@@ -39,15 +39,14 @@ impl AptosNFTService {
 impl Service for AptosNFTService {
     async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>> {
         let Self { cfg, indexer_db,market_db,tx } = self.clone();
-	
         runtime_handle.spawn(async move {
             loop {
                 use tokio::time::Duration;
                 info!("start fetch nfts");
+		
                 let mut db = indexer_db
                     .get()
                     .expect("couldn't get indexer_db connection from pool");
-		
 		//let mut mkdb= market_db.get().expect("couldn't get market_db connect from pool:");
 		
                 //fetch market db for last_version
@@ -56,7 +55,7 @@ impl Service for AptosNFTService {
                 let collections =
                     current_collection_datas::query_bigger_then_version(db, 0).unwrap();
                 for collection in collections {
-		    tx.send(Worker::from(collection)).await.expect("Send to Worker channel failed.");
+		    tx.send(Worker::from(collection)).await.unwrap();//expect("Send to Worker channel failed.");
 		    //sender to channel.
                     //dbg!(&collection);
                 }

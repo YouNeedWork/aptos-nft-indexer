@@ -1,6 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use tokio::{runtime::Handle, task::JoinHandle};
+use tokio::{runtime::{Handle,Builder, Runtime}, task::JoinHandle};
 
 use crate::config::IndexConfig;
 use crate::worker::WorkerTrait;
@@ -15,6 +15,7 @@ pub trait Service {
 
 pub struct IndexerService {
     cfg: IndexConfig,
+    rt:Runtime,
     servers: Vec<Box<dyn Service>>,
     workers: Vec<Box<dyn WorkerTrait>>,
 }
@@ -22,9 +23,18 @@ pub struct IndexerService {
 impl IndexerService {
     pub fn new(cfg: IndexConfig) -> Self {
         log::info!("IndexService init");
+
+        let rt = Builder::new_multi_thread()
+            .worker_threads(cfg.work_number as usize)
+            .thread_name("Tokio-Runtime")
+            .thread_stack_size(3 * 1024 * 1024)
+            .enable_time()
+            .build()
+            .unwrap();
 	
         Self {
             cfg,
+	    rt,
             servers: vec![],
 	    workers: vec![],
         }
@@ -32,29 +42,22 @@ impl IndexerService {
 
     pub fn run(&self) -> Result<()> {
         log::info!("IndexService Runing");
-        use tokio::runtime::Builder;
 
-        let rt = Builder::new_multi_thread()
-            .worker_threads(self.cfg.work_number as usize)
-            .thread_name("Tokio-Runtime")
-            .thread_stack_size(3 * 1024 * 1024)
-            .enable_time()
-            .build()
-            .unwrap();
+
 
         let services = self
             .servers
             .iter()
-            .map(|service| service.run(rt.handle()))
+            .map(|service| service.run(self.rt.handle()))
             .collect::<Vec<_>>();
 	
         let workers = self
             .workers
             .iter()
-            .map(|worker| worker.run(rt.handle()))
+            .map(|worker| worker.run(self.rt.handle()))
             .collect::<Vec<_>>();
 	
-        rt.block_on(async move {
+        self.rt.block_on(async move {
             for s in services {
                 s.await;
             }
@@ -77,5 +80,8 @@ impl IndexerService {
     pub fn add_worker(&mut self, s: Box<dyn WorkerTrait>) {
         self.workers.push(s)
     }
-    
+
+    pub fn runtime(&self) -> &Handle {
+	self.rt.handle()
+    }
 }
