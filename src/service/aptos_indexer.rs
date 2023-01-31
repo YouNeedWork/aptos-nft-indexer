@@ -1,9 +1,9 @@
 use crate::config::IndexConfig;
 use crate::db::DbPool;
 use crate::models::current_collection_datas;
+use crate::models::market_collections::query_collections;
 use crate::service::Service;
 use crate::worker::Worker;
-
 
 
 use anyhow::Result;
@@ -47,13 +47,14 @@ impl Service for AptosNFTService {
                 let mut db = indexer_db
                     .get()
                     .expect("couldn't get indexer_db connection from pool");
-		//let mut mkdb= market_db.get().expect("couldn't get market_db connect from pool:");
+		let mut mkdb= market_db.get().expect("couldn't get market_db connect from pool:");
 		
                 //fetch market db for last_version
+		let version = query_collections(&mut *db).unwrap_or_default();
 		
                 //and fetch bigger then last_version colleact. and issert or repeact
                 let collections =
-                    current_collection_datas::query_bigger_then_version(db, 0).unwrap();
+                    current_collection_datas::query_bigger_then_version(db, version).unwrap();
                 for collection in collections {
 		    tx.send(Worker::from(collection)).await.unwrap();//expect("Send to Worker channel failed.");
 		    //sender to channel.

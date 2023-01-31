@@ -40,10 +40,8 @@ impl IndexerService {
         }
     }
 
-    pub fn run(&self) -> Result<()> {
+    pub fn run(&mut self) -> Result<()> {
         log::info!("IndexService Runing");
-
-
 
         let services = self
             .servers
@@ -51,11 +49,15 @@ impl IndexerService {
             .map(|service| service.run(self.rt.handle()))
             .collect::<Vec<_>>();
 	
-        let workers = self
-            .workers
-            .iter()
-            .map(|worker| worker.run(self.rt.handle()))
-            .collect::<Vec<_>>();
+        // let workers = self
+        //     .workers
+        //     .iter()
+        //     .map(|worker| worker.run(self.rt.handle()))
+        //     .collect::<Vec<_>>();
+	let mut workers = vec![];
+	for worker in &mut self.workers {
+	    workers.push(worker.run(self.rt.handle()));
+	}
 	
         self.rt.block_on(async move {
             for s in services {

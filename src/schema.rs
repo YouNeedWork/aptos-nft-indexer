@@ -90,6 +90,22 @@ diesel::table! {
 }
 
 diesel::table! {
+    collections (id) {
+        id -> Int4,
+        chain_id -> Int4,
+        collection_id -> Varchar,
+        creator_address -> Varchar,
+        collection_name -> Varchar,
+        description -> Varchar,
+        supply -> Int4,
+        version -> Int4,
+        metadata_uri -> Varchar,
+        metadata_json -> Varchar,
+        image -> Varchar,
+    }
+}
+
+diesel::table! {
     token_activities (transaction_version, event_account_address, event_creation_number, event_sequence_number) {
         transaction_version -> Int8,
         event_account_address -> Varchar,

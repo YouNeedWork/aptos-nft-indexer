@@ -22,7 +22,8 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
     let (tx,rx) = tokio::sync::mpsc::channel::<Worker>(1000);
     //add service
     let nft_collect = AptosNFTService::new(cfg.clone(), indexer_db,market_db,tx.clone());
-    let worker = WorkerService::new();
+    
+    let worker = WorkerService::new(Some(rx));
     //let handle = worker.run(service.runtime(),rx);
     service.add_worker(Box::new(worker));
     //Add worker and started
