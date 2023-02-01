@@ -11,8 +11,7 @@ use async_trait::async_trait;
 use log::{info,trace};
 use tokio::runtime::Handle;
 use tokio::task::JoinHandle;
-use tokio::sync::mpsc::Sender;
-
+use async_channel::Sender;
 
 
 #[derive(Debug, Clone)]
@@ -58,9 +57,7 @@ impl Service for AptosNFTService {
                 let collections =
                     current_collection_datas::query_bigger_then_version(db, version as i64).unwrap();
                 for collection in collections {
-		    tx.send(Worker::from(collection)).await.unwrap();//expect("Send to Worker channel failed.");
-		    //sender to channel.
-                    //dbg!(&collection);
+		    tx.send(Worker::from(collection)).await.expect("Send to Worker channel failed.");
                 }
 		
                 info!("end fetch nfts");

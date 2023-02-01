@@ -18,15 +18,21 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
     //init db
     let indexer_db = db::get_connection_pool(&cfg.indexer_db_posgres);
     let market_db = db::get_connection_pool(&cfg.market_posgres);
+    
     //init the nft_collection sender
-    let (tx,rx) = tokio::sync::mpsc::channel::<Worker>(1000);
+    let (tx,rx) = async_channel::unbounded::<Worker>();
+    
     //add service
     let nft_collect = AptosNFTService::new(cfg.clone(), indexer_db,market_db,tx.clone());
     
-    let worker = WorkerService::new(Some(rx));
+    let worker = WorkerService::new(rx);
     //let handle = worker.run(service.runtime(),rx);
-    service.add_worker(Box::new(worker));
-    //Add worker and started
+    
+    //Add worker and started    
+    for _ in 0 ..cfg.work_number {
+	service.add_worker(Box::new(worker.clone()));
+    }
+
     //service.add_worker(worker.subscript());
     service.add_server(Box::new(nft_collect));
     service.run()
