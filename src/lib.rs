@@ -9,6 +9,7 @@ use num_enum::IntoPrimitive;
 
 #[derive(Debug,IntoPrimitive)]
 #[repr(u8)]
-pub enum CHAIN_ID {
-    APTOS,
+pub enum ChainID {
+    Aptos,
 }
+
