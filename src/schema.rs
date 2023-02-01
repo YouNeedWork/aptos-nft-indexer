@@ -89,7 +89,6 @@ diesel::table! {
     }
 }
 
-
 diesel::table! {
     token_activities (transaction_version, event_account_address, event_creation_number, event_sequence_number) {
         transaction_version -> Int8,
@@ -112,7 +111,6 @@ diesel::table! {
         transaction_timestamp -> Timestamp,
     }
 }
-
 
 // @generated automatically by Diesel CLI.
 
@@ -149,7 +147,4 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    collections,
-    tokens,
-);
+diesel::allow_tables_to_appear_in_same_query!(collections, tokens,);

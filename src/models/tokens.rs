@@ -97,16 +97,14 @@ pub fn insert_token(
     c: TokenInsert,
 ) -> Result<()> {
     if query_token_by_hash_id(db, &c.collection_id).is_err() {
-        diesel::insert_into(tokens::table)
-            .values(&c)
-            .execute(db)?;
+        diesel::insert_into(tokens::table).values(&c).execute(db)?;
     } else {
-	use crate::schema::tokens::dsl::*;
-	
+        use crate::schema::tokens::dsl::*;
+
         diesel::update(tokens.filter(token_id.eq(&c.token_id)))
             .set(version.eq(c.version))
             .execute(db)?;
     }
-    
+
     Ok(())
 }

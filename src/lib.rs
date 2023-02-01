@@ -7,9 +7,8 @@ pub mod worker;
 
 use num_enum::IntoPrimitive;
 
-#[derive(Debug,IntoPrimitive)]
+#[derive(Debug, IntoPrimitive)]
 #[repr(u8)]
 pub enum ChainID {
     Aptos,
 }
-

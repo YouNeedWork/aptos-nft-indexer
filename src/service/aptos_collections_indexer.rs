@@ -46,7 +46,7 @@ impl AptosService {
 impl Service for AptosService {
     async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>> {
         let Self {
-            cfg:_,
+            cfg: _,
             indexer_db,
             market_db,
             tx,
@@ -55,7 +55,7 @@ impl Service for AptosService {
             loop {
                 use tokio::time::Duration;
                 trace!("start fetch nfts");
-		
+
                 let db = indexer_db
                     .get()
                     .expect("couldn't get indexer_db connection from pool");
@@ -71,16 +71,16 @@ impl Service for AptosService {
                 // and fetch bigger then last_version colleact. and issert or repeact
                 let collections =
                     current_collection_datas::query_bigger_then_version(db, version as i64)
-                    .unwrap_or_default();
-		
-		trace!("The new batch is {} length",collections.len());
-		
+                        .unwrap_or_default();
+
+                trace!("The new batch is {} length", collections.len());
+
                 for collection in collections {
                     tx.send(Worker::from(collection))
                         .await
                         .expect("Send to Worker channel failed.");
                 }
-		
+
                 trace!("end fetch nfts");
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }

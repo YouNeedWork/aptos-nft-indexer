@@ -1,6 +1,9 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use tokio::{runtime::{Handle,Builder, Runtime}, task::JoinHandle};
+use tokio::{
+    runtime::{Builder, Handle, Runtime},
+    task::JoinHandle,
+};
 
 use crate::config::IndexConfig;
 use crate::worker::WorkerTrait;
@@ -15,7 +18,7 @@ pub trait Service {
 
 pub struct IndexerService {
     cfg: IndexConfig,
-    rt:Runtime,
+    rt: Runtime,
     servers: Vec<Box<dyn Service>>,
     workers: Vec<Box<dyn WorkerTrait>>,
 }
@@ -31,12 +34,12 @@ impl IndexerService {
             .enable_time()
             .build()
             .unwrap();
-	
+
         Self {
             cfg,
-	    rt,
+            rt,
             servers: vec![],
-	    workers: vec![],
+            workers: vec![],
         }
     }
 
@@ -48,27 +51,27 @@ impl IndexerService {
             .iter()
             .map(|service| service.run(self.rt.handle()))
             .collect::<Vec<_>>();
-	
+
         // let workers = self
         //     .workers
         //     .iter()
         //     .map(|worker| worker.run(self.rt.handle()))
         //     .collect::<Vec<_>>();
-	
-	let mut workers = vec![];
-	for worker in &mut self.workers {
-	    workers.push(worker.run(self.rt.handle()));
-	}
-	
+
+        let mut workers = vec![];
+        for worker in &mut self.workers {
+            workers.push(worker.run(self.rt.handle()));
+        }
+
         self.rt.block_on(async move {
             for s in services {
                 s.await;
             }
 
-	    for worker in workers {
-		worker.await;
-	    }
-	    
+            for worker in workers {
+                worker.await;
+            }
+
             loop {}
         });
 
@@ -85,6 +88,6 @@ impl IndexerService {
     }
 
     pub fn runtime(&self) -> &Handle {
-	self.rt.handle()
+        self.rt.handle()
     }
 }

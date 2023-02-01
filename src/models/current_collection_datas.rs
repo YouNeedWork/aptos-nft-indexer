@@ -32,7 +32,7 @@ pub fn query_info_by_collection_hash(
     hash: &str,
 ) -> Result<CurrentCollectionDataQuery> {
     use crate::schema::current_collection_datas::dsl::*;
-    
+
     current_collection_datas::table()
         .filter(collection_data_id_hash.eq(hash))
         .first(&mut *db)

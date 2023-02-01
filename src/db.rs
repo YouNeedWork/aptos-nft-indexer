@@ -5,8 +5,6 @@ use diesel::r2d2::{ConnectionManager, Pool};
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 //pub type DB = PooledConnection<ConnectionManager<PgConnection>>;
 
-
-
 pub fn get_connection_pool(url: &str) -> DbPool {
     let manager = ConnectionManager::<PgConnection>::new(url);
 
