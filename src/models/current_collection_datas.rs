@@ -5,8 +5,6 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use serde::{Deserialize, Serialize};
 
-use log::info;
-
 use crate::schema;
 use schema::*;
 
@@ -34,9 +32,7 @@ pub fn query_info_by_collection_hash(
     hash: &str,
 ) -> Result<CurrentCollectionDataQuery> {
     use crate::schema::current_collection_datas::dsl::*;
-
-    info!("Querying nfts by collection");
-
+    
     current_collection_datas::table()
         .filter(collection_data_id_hash.eq(hash))
         .first(&mut *db)
@@ -52,6 +48,7 @@ pub fn query_bigger_then_version(
     current_collection_datas::table()
         .filter(last_transaction_version.gt(version))
         .limit(20)
+        .order(last_transaction_version)
         .load::<CurrentCollectionDataQuery>(&mut *db)
         .map_err(|e| e.into())
 }

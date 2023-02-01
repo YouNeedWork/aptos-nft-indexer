@@ -23,9 +23,9 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
     let (tx,rx) = async_channel::unbounded::<Worker>();
     
     //add service
-    let nft_collect = AptosNFTService::new(cfg.clone(), indexer_db,market_db,tx.clone());
+    let nft_collect = AptosNFTService::new(cfg.clone(), indexer_db,market_db.clone(),tx.clone());
     
-    let worker = WorkerService::new(rx);
+    let worker = WorkerService::new(rx,market_db);
     //let handle = worker.run(service.runtime(),rx);
     
     //Add worker and started    

@@ -92,16 +92,14 @@ diesel::table! {
 diesel::table! {
     collections (id) {
         id -> Int4,
-        chain_id -> Int4,
+        chain_id -> Int8,
         collection_id -> Varchar,
         creator_address -> Varchar,
         collection_name -> Varchar,
         description -> Varchar,
-        supply -> Int4,
-        version -> Int4,
+        supply -> Int8,
+        version -> Int8,
         metadata_uri -> Varchar,
-        metadata_json -> Varchar,
-        image -> Varchar,
     }
 }
 
