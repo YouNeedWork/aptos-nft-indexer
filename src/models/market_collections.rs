@@ -65,15 +65,29 @@ pub fn query_collections(mut db: PooledConnection<ConnectionManager<PgConnection
     Ok(a.version)
 }
 
+pub fn query_collection_by_hash_id(db: &mut PooledConnection<ConnectionManager<PgConnection>>,hash_id:&str) -> Result<CollectionQuery> {
+    use crate::schema::collections::dsl::*;
+
+    
+    collections::table()
+        .filter(collection_id.eq(hash_id))
+        .first(db)
+        .map_err(|e| anyhow!(e))
+}
+
 pub fn insert_collection(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     c: CollectionInsert,
 ) -> Result<()> {
-    //use crate::schema::collections::*;
     
-    diesel::insert_into(collections::table)
-        .values(&c)
-        .execute(db)?;
+    if query_collection_by_hash_id(db, &c.collection_id).is_err() {
+	diesel::insert_into(collections::table)
+            .values(&c)
+            .execute(db)?;
+    } else {
+	use crate::schema::collections::dsl::*;	
+	diesel::update(collections.filter(collection_id.eq(&c.collection_id))).set(version.eq(c.version)).execute(db)?;
+    }
     
     Ok(())
 }
