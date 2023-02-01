@@ -10,6 +10,7 @@ use serde_json::Value;
 
 use crate::models::current_token_ownerships::CurrentTokenOwnership;
 
+
 #[derive(Debug, Queryable, Deserialize, FieldCount, Serialize)]
 #[diesel(primary_key(token_data_id_hash))]
 #[diesel(table_name = current_token_datas)]
@@ -41,7 +42,6 @@ pub fn query_nfts_by_collection(
     c_name: &str,
 ) -> Result<Vec<CurrentTokenData>> {
     use crate::schema::current_token_datas::dsl::*;
-
     // collection_data_id_hash
     let results = current_token_datas
         .filter(creator_address.eq(address))
@@ -66,5 +66,20 @@ pub fn query_nfts_by_owner(
 
     query
         .load::<(CurrentTokenData, CurrentTokenOwnership)>(&mut *db)
+        .map_err(|e| e.into())
+}
+
+
+pub fn query_bigger_then_version(
+    mut db:&mut PooledConnection<ConnectionManager<PgConnection>>,
+    version: i64,
+) -> Result<Vec<CurrentTokenData>> {
+    use crate::schema::current_token_datas::dsl::*;
+    
+    current_token_datas
+        .filter(last_transaction_version.gt(version))
+        .limit(100)
+        .order(last_transaction_version)
+        .load::<CurrentTokenData>(db)
         .map_err(|e| e.into())
 }

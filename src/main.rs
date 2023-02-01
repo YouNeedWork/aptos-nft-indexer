@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use cargos_indexer::service::{aptos_indexer::AptosNFTService, IndexerService};
+use cargos_indexer::service::{aptos_collections_indexer,aptos_nfts_indexer, IndexerService};
 use cargos_indexer::{config, db,worker::Worker,worker::WorkerService};
 
 fn main() -> Result<()> {
@@ -23,17 +23,19 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
     let (tx,rx) = async_channel::unbounded::<Worker>();
     
     //add service
-    let nft_collect = AptosNFTService::new(cfg.clone(), indexer_db,market_db.clone(),tx.clone());
+    let collection = aptos_collections_indexer::AptosService::new(cfg.clone(), indexer_db.clone(),market_db.clone(),tx.clone());
+    let nft = aptos_nfts_indexer::AptosService::new(cfg.clone(), indexer_db.clone(),market_db.clone(),tx.clone());
     
     let worker = WorkerService::new(rx,market_db);
     //let handle = worker.run(service.runtime(),rx);
-    
     //Add worker and started    
     for _ in 0 ..cfg.work_number {
 	service.add_worker(Box::new(worker.clone()));
     }
 
-    //service.add_worker(worker.subscript());
-    service.add_server(Box::new(nft_collect));
+
+    service.add_server(Box::new(collection));
+    service.add_server(Box::new(nft));
+    
     service.run()
 }

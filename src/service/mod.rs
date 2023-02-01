@@ -5,8 +5,8 @@ use tokio::{runtime::{Handle,Builder, Runtime}, task::JoinHandle};
 use crate::config::IndexConfig;
 use crate::worker::WorkerTrait;
 
-
-pub mod aptos_indexer;
+pub mod aptos_collections_indexer;
+pub mod aptos_nfts_indexer;
 
 #[async_trait]
 pub trait Service {
@@ -54,6 +54,7 @@ impl IndexerService {
         //     .iter()
         //     .map(|worker| worker.run(self.rt.handle()))
         //     .collect::<Vec<_>>();
+	
 	let mut workers = vec![];
 	for worker in &mut self.workers {
 	    workers.push(worker.run(self.rt.handle()));

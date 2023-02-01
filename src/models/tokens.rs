@@ -66,7 +66,7 @@ impl From<CurrentTokenData> for TokenInsert {
     }
 }
 
-pub fn query_collections(
+pub fn query_max_token_version(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
 ) -> Result<i64> {
     use crate::schema::tokens::dsl::*;
@@ -80,7 +80,7 @@ pub fn query_collections(
     Ok(a.version)
 }
 
-pub fn query_collection_by_hash_id(
+pub fn query_token_by_hash_id(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     hash_id: &str,
 ) -> Result<TokenQuery> {
@@ -92,11 +92,11 @@ pub fn query_collection_by_hash_id(
         .map_err(|e| anyhow!(e))
 }
 
-pub fn insert_collection(
+pub fn insert_token(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     c: TokenInsert,
 ) -> Result<()> {
-    if query_collection_by_hash_id(db, &c.collection_id).is_err() {
+    if query_token_by_hash_id(db, &c.collection_id).is_err() {
         diesel::insert_into(tokens::table)
             .values(&c)
             .execute(db)?;

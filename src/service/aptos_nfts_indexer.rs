@@ -1,7 +1,7 @@
 use crate::config::IndexConfig;
 use crate::db::DbPool;
-use crate::models::current_collection_datas;
-use crate::models::market_collections::query_collections;
+use crate::models::{current_token_datas,tokens};
+
 use crate::service::Service;
 use crate::worker::Worker;
 
@@ -13,7 +13,7 @@ use tokio::runtime::Handle;
 use tokio::task::JoinHandle;
 
 #[derive(Debug, Clone)]
-pub struct AptosNFTService {
+pub struct AptosService {
     //Config ref
     cfg: IndexConfig,
     // Database conn.
@@ -23,7 +23,7 @@ pub struct AptosNFTService {
     // Dataquery function.
 }
 
-impl AptosNFTService {
+impl AptosService {
     pub fn new(
         cfg: IndexConfig,
         indexer_db: DbPool,
@@ -43,7 +43,7 @@ impl AptosNFTService {
 }
 
 #[async_trait]
-impl Service for AptosNFTService {
+impl Service for AptosService {
     async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>> {
         let Self {
             cfg:_,
@@ -56,27 +56,27 @@ impl Service for AptosNFTService {
                 use tokio::time::Duration;
                 trace!("start fetch nfts");
 		
-                let db = indexer_db
+                let mut db = indexer_db
                     .get()
                     .expect("couldn't get indexer_db connection from pool");
 
-                let mkdb = market_db
+                let mut mkdb = market_db
                     .get()
                     .expect("couldn't get market_db connect from pool:");
 
                 // Fetch market db for last_version
-                let version = query_collections(mkdb).unwrap_or_default();
+                let version = tokens::query_max_token_version(&mut mkdb).unwrap_or_default();
                 trace!("Fetch bigger then {} version collections", version);
-
+		
                 // and fetch bigger then last_version colleact. and issert or repeact
-                let collections =
-                    current_collection_datas::query_bigger_then_version(db, version as i64)
+                let tokens =
+                    current_token_datas::query_bigger_then_version(&mut db, version as i64)
                     .unwrap_or_default();
 		
-		trace!("The new batch is {} length",collections.len());
+		trace!("The new token batch is {} length",tokens.len());
 		
-                for collection in collections {
-                    tx.send(Worker::from(collection))
+                for token in tokens {
+                    tx.send(Worker::from(token))
                         .await
                         .expect("Send to Worker channel failed.");
                 }
