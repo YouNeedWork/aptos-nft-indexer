@@ -7,6 +7,8 @@ pub struct IndexConfig {
     pub market_posgres: String,
     pub indexer_db_posgres: String,
     pub work_number: i32,
+    pub key: String,
+    pub secret: String,
 }
 
 impl Default for IndexConfig {
@@ -15,6 +17,8 @@ impl Default for IndexConfig {
             market_posgres: String::from(""),
             indexer_db_posgres: String::from(""),
             work_number: 4,
+            key: String::from(""),
+            secret: String::from(""),
         }
     }
 }

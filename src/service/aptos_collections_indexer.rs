@@ -76,19 +76,15 @@ impl Service for AptosService {
                         .unwrap_or_default();
 
                 trace!("The new batch is {} length", collections.len());
-                let mut max_version = version;
-
                 for collection in collections {
-                    if collection.last_transaction_version > max_version {
-                        max_version = collection.last_transaction_version;
+                    if collection.last_transaction_version > version {
+                        version = collection.last_transaction_version;
                     }
-
                     tx.send(Worker::from(collection))
                         .await
                         .expect("Send to Worker channel failed.");
                 }
 
-                version = max_version + 1;
                 trace!("end fetch nfts");
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }

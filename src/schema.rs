@@ -1,4 +1,5 @@
 // @generated automatically by Diesel CLI.
+
 diesel::table! {
     collections (id) {
         id -> Int4,
@@ -24,6 +25,7 @@ diesel::table! {
         token_name -> Varchar,
         supply -> Int8,
         version -> Int8,
+        payee_address -> Varchar,
         royalty_points_numerator -> Int8,
         royalty_points_denominator -> Int8,
         metadata_uri -> Varchar,

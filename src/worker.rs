@@ -1,15 +1,18 @@
 use anyhow::Result;
 use async_channel::Receiver;
 use async_trait::async_trait;
+use aws_sdk_s3::Client;
 use log::{info, trace};
 use tokio::{runtime::Handle, task::JoinHandle};
 
-use crate::models::current_collection_datas::CurrentCollectionDataQuery;
+use crate::aws::upload_object;
+use crate::db::DbPool;
+use crate::models::current_collection_datas::{
+    query_info_by_collection_address_name, CurrentCollectionDataQuery,
+};
 use crate::models::current_token_datas::CurrentTokenData;
 use crate::models::market_collections::{insert_collection, CollectionInsert};
-use crate::models::tokens::{insert_token, TokenInsert};
-
-use crate::db::DbPool;
+use crate::models::tokens::{insert_token, query_token_by_hash_id, TokenInsert};
 
 #[async_trait]
 pub trait WorkerTrait {
@@ -38,11 +41,19 @@ impl From<CurrentTokenData> for Worker {
 pub struct WorkerService {
     rx: Receiver<Worker>,
     db: DbPool,
+    indexer_db: DbPool,
+    aws_s3: Client,
 }
 
 impl WorkerService {
-    pub fn new(rx: Receiver<Worker>, db: DbPool) -> Self {
-        Self { rx, db }
+    pub fn new(rx: Receiver<Worker>, db: DbPool, indexer_db: DbPool, client: Client) -> Self {
+        //	let client =
+        Self {
+            rx,
+            db,
+            indexer_db,
+            aws_s3: client,
+        }
     }
 }
 
@@ -51,11 +62,15 @@ impl WorkerTrait for WorkerService {
     async fn run(&mut self, runtime_handle: &Handle) -> JoinHandle<Result<()>> {
         let rx = self.rx.clone();
         let mkdb = self.db.clone();
+        let indexer_db = self.indexer_db.clone();
+        let s3 = self.aws_s3.clone();
 
         runtime_handle.spawn(async move {
 	    let mut db = mkdb
                     .get()
-                .expect("couldn't get indexer_db connection from pool");
+                .expect("couldn't get market_db connection from pool");
+	    let mut apt_db = indexer_db.get().expect("couldn't get indexer_db connection from pool");
+
             loop {
                 tokio::select! {
                     new_worker = rx.recv() => {
@@ -70,9 +85,34 @@ impl WorkerTrait for WorkerService {
 			    Ok(Worker::NEW_NFTS_OR_OWNER_CHANGED(nft)) => {
 				let id = nft.token_data_id_hash.clone();
 				trace!("Got new nft id:{}",id);
-				// Insert to
-				insert_token(&mut db,TokenInsert::from(nft)).expect("Fail to insert db");
-				trace!("finesh the nft id {}",id);				
+				if query_token_by_hash_id(&mut db,&id).is_err() {
+				    // New nft
+				    let collection = query_info_by_collection_address_name(&mut apt_db,&nft.creator_address,&nft.collection_name).expect("fail to query collection. pls checkt this");
+				    let mut token = TokenInsert::from(nft);
+				    token.collection_id = collection.collection_data_id_hash;
+				    // get resoures type.
+				    let metadata_uri = token.metadata_uri.trim();
+				    if metadata_uri.ends_with(".json") {
+					//erc721 metadata_uri
+					token.metadata_json = Some(String::from("123"));
+					//token.image_uri = 
+				    } else {
+					// let mut file = std::fs::File::create("image.png").unwrap();
+					// reqwest::blocking::get("https://example.com/image.png")
+					//     .unwrap()
+					//     .copy_to(&mut file)
+					//     .unwrap();
+					// image_uri
+					token.image = Some(metadata_uri.to_string());
+				    }
+				    // download images
+				    // upload to aws
+				    // upload_object(&s3,"cargosnft","config.yaml","main.rs").await.expect("fail to update");
+				    // save image to db
+				    // Insert to db
+				    insert_token(&mut db,token).expect("Fail to insert db");
+				}
+				trace!("finesh the nft id {}",id);
 			    }
 			    _=> {
 				unreachable!();

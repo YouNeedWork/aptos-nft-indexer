@@ -38,6 +38,20 @@ pub fn query_info_by_collection_hash(
         .map_err(|e| e.into())
 }
 
+pub fn query_info_by_collection_address_name(
+    db: &mut PooledConnection<ConnectionManager<PgConnection>>,
+    c_address: &str,
+    c_name: &str,
+) -> Result<CurrentCollectionDataQuery> {
+    use crate::aptos_schema::current_collection_datas::dsl::*;
+
+    current_collection_datas::table()
+        .filter(creator_address.eq(c_address))
+        .filter(collection_name.eq(c_name))
+        .first(db)
+        .map_err(|e| e.into())
+}
+
 pub fn query_bigger_then_version(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     version: i64,

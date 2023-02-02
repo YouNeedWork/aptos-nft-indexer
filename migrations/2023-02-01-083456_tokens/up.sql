@@ -10,6 +10,7 @@ CREATE TABLE tokens (
     "token_name" varchar NOT NULL,
     "supply" bigint NOT NULL,
     "version" bigint NOT NULL,
+    "payee_address" varchar NOT NULL,    
     "royalty_points_numerator" bigint NOT NULL,
     "royalty_points_denominator" bigint NOT NULL,
     "metadata_uri" varchar NOT NULL,

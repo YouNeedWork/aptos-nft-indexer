@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use cargos_indexer::service::{aptos_collections_indexer, aptos_nfts_indexer, IndexerService};
-use cargos_indexer::{config, db, worker::Worker, worker::WorkerService};
+use cargos_indexer::{aws, config, db, worker::Worker, worker::WorkerService};
 
 fn main() -> Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
@@ -29,6 +29,7 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
         market_db.clone(),
         tx.clone(),
     );
+
     let nft = aptos_nfts_indexer::AptosService::new(
         cfg.clone(),
         indexer_db.clone(),
@@ -36,7 +37,13 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
         tx.clone(),
     );
 
-    let worker = WorkerService::new(rx, market_db);
+    let aws_cfg = cfg.clone();
+    //init aws s3
+    let client = service
+        .runtime()
+        .block_on(async move { aws::get_client(&aws_cfg, "ap-northeast-1").await.unwrap() });
+
+    let worker = WorkerService::new(rx, market_db, indexer_db, client);
     //let handle = worker.run(service.runtime(),rx);
     //Add worker and started
     for _ in 0..cfg.work_number {
