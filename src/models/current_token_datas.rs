@@ -69,14 +69,14 @@ pub fn query_nfts_by_owner(
 }
 
 pub fn query_bigger_then_version(
-    mut db: &mut PooledConnection<ConnectionManager<PgConnection>>,
+    db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     version: i64,
+    batch: i64,
 ) -> Result<Vec<CurrentTokenData>> {
     use crate::schema::current_token_datas::dsl::*;
 
     current_token_datas
-        .filter(last_transaction_version.gt(version))
-        .limit(100)
+        .filter(last_transaction_version.between(version, version + batch))
         .order(last_transaction_version)
         .load::<CurrentTokenData>(db)
         .map_err(|e| e.into())

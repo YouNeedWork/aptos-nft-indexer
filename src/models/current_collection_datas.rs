@@ -28,27 +28,27 @@ pub struct CurrentCollectionDataQuery {
 }
 
 pub fn query_info_by_collection_hash(
-    mut db: PooledConnection<ConnectionManager<PgConnection>>,
+    db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     hash: &str,
 ) -> Result<CurrentCollectionDataQuery> {
     use crate::schema::current_collection_datas::dsl::*;
 
     current_collection_datas::table()
         .filter(collection_data_id_hash.eq(hash))
-        .first(&mut *db)
+        .first(db)
         .map_err(|e| e.into())
 }
 
 pub fn query_bigger_then_version(
-    mut db: PooledConnection<ConnectionManager<PgConnection>>,
+    db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     version: i64,
 ) -> Result<Vec<CurrentCollectionDataQuery>> {
     use crate::schema::current_collection_datas::dsl::*;
 
     current_collection_datas::table()
         .filter(last_transaction_version.gt(version))
-        .limit(20)
+        .limit(100)
         .order(last_transaction_version)
-        .load::<CurrentCollectionDataQuery>(&mut *db)
+        .load::<CurrentCollectionDataQuery>(db)
         .map_err(|e| e.into())
 }

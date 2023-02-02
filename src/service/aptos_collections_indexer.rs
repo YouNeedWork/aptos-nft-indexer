@@ -51,36 +51,44 @@ impl Service for AptosService {
             market_db,
             tx,
         } = self.clone();
+
         runtime_handle.spawn(async move {
+            let mut db = indexer_db
+                .get()
+                .expect("couldn't get indexer_db connection from pool");
+
+            let mut mkdb = market_db
+                .get()
+                .expect("couldn't get market_db connect from pool:");
+
+            // Fetch market db for last_version
+            let mut version: i64 = query_collections(&mut mkdb).unwrap_or_default();
+
             loop {
                 use tokio::time::Duration;
                 trace!("start fetch nfts");
 
-                let db = indexer_db
-                    .get()
-                    .expect("couldn't get indexer_db connection from pool");
-
-                let mkdb = market_db
-                    .get()
-                    .expect("couldn't get market_db connect from pool:");
-
-                // Fetch market db for last_version
-                let version = query_collections(mkdb).unwrap_or_default();
                 trace!("Fetch bigger then {} version collections", version);
 
                 // and fetch bigger then last_version colleact. and issert or repeact
                 let collections =
-                    current_collection_datas::query_bigger_then_version(db, version as i64)
+                    current_collection_datas::query_bigger_then_version(&mut db, version)
                         .unwrap_or_default();
 
                 trace!("The new batch is {} length", collections.len());
+                let mut max_version = version;
 
                 for collection in collections {
+                    if collection.last_transaction_version > max_version {
+                        max_version = collection.last_transaction_version;
+                    }
+
                     tx.send(Worker::from(collection))
                         .await
                         .expect("Send to Worker channel failed.");
                 }
 
+                version = max_version + 1;
                 trace!("end fetch nfts");
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }

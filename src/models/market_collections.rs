@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result};
 use bigdecimal::ToPrimitive;
 use diesel::associations::HasTable;
 use diesel::prelude::*;
-use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 
 use super::current_collection_datas::CurrentCollectionDataQuery;
@@ -52,13 +51,15 @@ impl From<CurrentCollectionDataQuery> for CollectionInsert {
     }
 }
 
-pub fn query_collections(mut db: PooledConnection<ConnectionManager<PgConnection>>) -> Result<i64> {
+pub fn query_collections(
+    db: &mut PooledConnection<ConnectionManager<PgConnection>>,
+) -> Result<i64> {
     use crate::schema::collections::dsl::*;
 
     let a: CollectionQuery = collections::table()
         .filter(chain_id.eq(Into::<u8>::into(ChainID::Aptos) as i64))
         .order(version.desc())
-        .first(&mut *db)
+        .first(db)
         .map_err(|e| anyhow!(e))?;
 
     Ok(a.version)
