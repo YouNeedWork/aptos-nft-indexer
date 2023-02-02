@@ -5,8 +5,7 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use serde::{Deserialize, Serialize};
 
-use crate::schema;
-use schema::*;
+use crate::aptos_schema::*;
 
 // key -> Text,
 // transaction_version -> Int8,
@@ -46,7 +45,7 @@ pub fn query_items_by_handle(
     mut db: PooledConnection<ConnectionManager<PgConnection>>,
     hash: &str,
 ) -> Result<Vec<TableItem>> {
-    use crate::schema::table_items::dsl::*;
+    use crate::aptos_schema::table_items::dsl::*;
 
     table_items::table()
         .filter(table_handle.eq(hash))

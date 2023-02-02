@@ -27,7 +27,7 @@ pub fn query_nfts_by_owner(
     mut db: PooledConnection<ConnectionManager<PgConnection>>,
     user_wallet: &str,
 ) -> Result<Vec<CurrentTokenOwnership>> {
-    use crate::schema::current_token_ownerships::dsl::*;
+    use crate::aptos_schema::current_token_ownerships::dsl::*;
 
     let results = current_token_ownerships
         .filter(owner_address.eq(user_wallet))

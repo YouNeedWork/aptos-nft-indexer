@@ -5,8 +5,7 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use serde::{Deserialize, Serialize};
 
-use crate::schema;
-use schema::*;
+use crate::aptos_schema::*;
 
 /// Need a separate struct for queryable because we don't want to define the inserted_at column (letting DB fill)
 #[derive(Debug, Identifiable, Queryable, Deserialize, Serialize)]
@@ -31,7 +30,7 @@ pub fn query_info_by_collection_hash(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     hash: &str,
 ) -> Result<CurrentCollectionDataQuery> {
-    use crate::schema::current_collection_datas::dsl::*;
+    use crate::aptos_schema::current_collection_datas::dsl::*;
 
     current_collection_datas::table()
         .filter(collection_data_id_hash.eq(hash))
@@ -43,7 +42,7 @@ pub fn query_bigger_then_version(
     db: &mut PooledConnection<ConnectionManager<PgConnection>>,
     version: i64,
 ) -> Result<Vec<CurrentCollectionDataQuery>> {
-    use crate::schema::current_collection_datas::dsl::*;
+    use crate::aptos_schema::current_collection_datas::dsl::*;
 
     current_collection_datas::table()
         .filter(last_transaction_version.gt(version))

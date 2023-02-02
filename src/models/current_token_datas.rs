@@ -40,7 +40,7 @@ pub fn query_nfts_by_collection(
     address: &str,
     c_name: &str,
 ) -> Result<Vec<CurrentTokenData>> {
-    use crate::schema::current_token_datas::dsl::*;
+    use crate::aptos_schema::current_token_datas::dsl::*;
     // collection_data_id_hash
     let results = current_token_datas
         .filter(creator_address.eq(address))
@@ -56,7 +56,7 @@ pub fn query_nfts_by_owner(
     mut db: PooledConnection<ConnectionManager<PgConnection>>,
     address: &str,
 ) -> Result<Vec<(CurrentTokenData, CurrentTokenOwnership)>> {
-    use crate::schema::*;
+    use crate::aptos_schema::*;
 
     let query = current_token_datas::table.inner_join(current_token_ownerships::table);
     let query = query
@@ -73,7 +73,7 @@ pub fn query_bigger_then_version(
     version: i64,
     batch: i64,
 ) -> Result<Vec<CurrentTokenData>> {
-    use crate::schema::current_token_datas::dsl::*;
+    use crate::aptos_schema::current_token_datas::dsl::*;
 
     current_token_datas
         .filter(last_transaction_version.between(version, version + batch))
