@@ -3,6 +3,7 @@ use async_channel::Receiver;
 use async_trait::async_trait;
 use aws_sdk_s3::Client;
 use log::{info, trace};
+use tokio::io::AsyncWriteExt;
 use tokio::{runtime::Handle, task::JoinHandle};
 
 use crate::aws::upload_object;
@@ -84,7 +85,7 @@ impl WorkerTrait for WorkerService {
 			    }
 			    Ok(Worker::NEW_NFTS_OR_OWNER_CHANGED(nft)) => {
 				let id = nft.token_data_id_hash.clone();
-				trace!("Got new nft id:{}",id);
+				trace!("Got new nft id:{}",&id);
 				if query_token_by_hash_id(&mut db,&id).is_err() {
 				    // New nft
 				    let collection = query_info_by_collection_address_name(&mut apt_db,&nft.creator_address,&nft.collection_name).expect("fail to query collection. pls checkt this");
@@ -92,22 +93,21 @@ impl WorkerTrait for WorkerService {
 				    token.collection_id = collection.collection_data_id_hash;
 				    // get resoures type.
 				    let metadata_uri = token.metadata_uri.trim();
+				    let name = format!("{}.png",id.clone());
 				    if metadata_uri.ends_with(".json") {
 					//erc721 metadata_uri
 					token.metadata_json = Some(String::from("123"));
 					//token.image_uri = 
 				    } else {
-					// let mut file = std::fs::File::create("image.png").unwrap();
-					// reqwest::blocking::get("https://example.com/image.png")
-					//     .unwrap()
-					//     .copy_to(&mut file)
-					//     .unwrap();
-					// image_uri
-					token.image = Some(metadata_uri.to_string());
+					// let mut file = tokio::fs::File::create(&name).await?;
+					// let bytes = reqwest::get(metadata_uri.clone()).await?
+					//    .bytes().await?;
+					// file.write_all(&bytes).await?;
+					// upload to aws
+					// upload_object(&s3,"cargosnft",&name,&name).await.expect("fail to update");
+					// token.image = Some(name.clone());
 				    }
 				    // download images
-				    // upload to aws
-				    // upload_object(&s3,"cargosnft","config.yaml","main.rs").await.expect("fail to update");
 				    // save image to db
 				    // Insert to db
 				    insert_token(&mut db,token).expect("Fail to insert db");

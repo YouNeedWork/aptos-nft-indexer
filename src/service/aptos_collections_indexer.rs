@@ -46,7 +46,7 @@ impl AptosService {
 impl Service for AptosService {
     async fn run(&self, runtime_handle: &Handle) -> JoinHandle<Result<()>> {
         let Self {
-            cfg: _,
+            cfg,
             indexer_db,
             market_db,
             tx,
@@ -86,7 +86,7 @@ impl Service for AptosService {
                 }
 
                 trace!("end fetch nfts");
-                tokio::time::sleep(Duration::from_millis(100)).await;
+                tokio::time::sleep(Duration::from_millis(cfg.fetch_millis as u64)).await;
             }
         })
     }

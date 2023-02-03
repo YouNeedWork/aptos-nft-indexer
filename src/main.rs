@@ -12,14 +12,14 @@ fn main() -> Result<()> {
 }
 
 fn run_all(cfg: config::IndexConfig) -> Result<()> {
-    //init service
+    // init service
     let mut service: IndexerService = IndexerService::new(cfg.clone());
 
-    //init db
+    // init db
     let indexer_db = db::get_connection_pool(&cfg.indexer_db_posgres);
     let market_db = db::get_connection_pool(&cfg.market_posgres);
 
-    //init the nft_collection sender
+    // init the nft_collection sender
     let (tx, rx) = async_channel::unbounded::<Worker>();
 
     //add service
@@ -38,12 +38,14 @@ fn run_all(cfg: config::IndexConfig) -> Result<()> {
     );
 
     let aws_cfg = cfg.clone();
+
     //init aws s3
     let client = service
         .runtime()
         .block_on(async move { aws::get_client(&aws_cfg, "ap-northeast-1").await.unwrap() });
 
     let worker = WorkerService::new(rx, market_db, indexer_db, client);
+
     //let handle = worker.run(service.runtime(),rx);
     //Add worker and started
     for _ in 0..cfg.work_number {

@@ -23,4 +23,5 @@ chrono = { version = "0.4.19", features = ["clock", "serde"] }
 num_enum_derive = "0.5.9"
 num_enum = "0.5.9"
 async-channel = "1.8.0"
+reqwest = {version = "0.11.14"}
 

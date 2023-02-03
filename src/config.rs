@@ -9,6 +9,7 @@ pub struct IndexConfig {
     pub work_number: i32,
     pub key: String,
     pub secret: String,
+    pub fetch_millis: i32,
 }
 
 impl Default for IndexConfig {
@@ -19,6 +20,7 @@ impl Default for IndexConfig {
             work_number: 4,
             key: String::from(""),
             secret: String::from(""),
+            fetch_millis: 1000,
         }
     }
 }
