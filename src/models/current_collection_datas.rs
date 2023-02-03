@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::aptos_schema::*;
 
-/// Need a separate struct for queryable because we don't want to define the inserted_at column (letting DB fill)
+/// Need a separate struct for queryable because we don't want to define the
+/// inserted_at column (letting DB fill)
 #[derive(Debug, Identifiable, Queryable, Deserialize, Serialize)]
 #[diesel(primary_key(collection_data_id_hash))]
 #[diesel(table_name = current_collection_datas)]

@@ -80,15 +80,11 @@ impl IndexerService {
         Ok(())
     }
 
-    pub fn add_server(&mut self, s: Box<dyn Service>) {
-        self.servers.push(s)
-    }
+    pub fn add_server(&mut self, s: Box<dyn Service>) { self.servers.push(s) }
 
     pub fn add_worker(&mut self, s: Box<dyn WorkerTrait>) {
         self.workers.push(s)
     }
 
-    pub fn runtime(&self) -> &Handle {
-        self.rt.handle()
-    }
+    pub fn runtime(&self) -> &Handle { self.rt.handle() }
 }

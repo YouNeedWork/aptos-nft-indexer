@@ -13,7 +13,9 @@ use crate::models::current_collection_datas::{
 };
 use crate::models::current_token_datas::CurrentTokenData;
 use crate::models::market_collections::{insert_collection, CollectionInsert};
-use crate::models::tokens::{insert_token, query_token_by_hash_id, TokenInsert};
+use crate::models::tokens::{
+    insert_token, query_token_by_hash_id, TokenInsert,
+};
 
 #[async_trait]
 pub trait WorkerTrait {
@@ -23,7 +25,9 @@ pub trait WorkerTrait {
 #[derive(Debug)]
 pub enum Worker {
     COLLECTION(CurrentCollectionDataQuery),
-    NEW_NFTS_OR_OWNER_CHANGED(CurrentTokenData), //TODO all type here are holder DB origin type.like(DB)
+    NEW_NFTS_OR_OWNER_CHANGED(CurrentTokenData), /* TODO all type here are
+                                                  * holder DB origin
+                                                  * type.like(DB) */
 }
 
 impl From<CurrentCollectionDataQuery> for Worker {
@@ -33,9 +37,7 @@ impl From<CurrentCollectionDataQuery> for Worker {
 }
 
 impl From<CurrentTokenData> for Worker {
-    fn from(v: CurrentTokenData) -> Self {
-        Self::NEW_NFTS_OR_OWNER_CHANGED(v)
-    }
+    fn from(v: CurrentTokenData) -> Self { Self::NEW_NFTS_OR_OWNER_CHANGED(v) }
 }
 
 #[derive(Clone, Debug)]
@@ -47,7 +49,12 @@ pub struct WorkerService {
 }
 
 impl WorkerService {
-    pub fn new(rx: Receiver<Worker>, db: DbPool, indexer_db: DbPool, client: Client) -> Self {
+    pub fn new(
+        rx: Receiver<Worker>,
+        db: DbPool,
+        indexer_db: DbPool,
+        client: Client,
+    ) -> Self {
         //	let client =
         Self {
             rx,

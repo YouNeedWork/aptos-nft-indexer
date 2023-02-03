@@ -4,6 +4,7 @@ diesel::table! {
     collections (id) {
         id -> Int4,
         chain_id -> Int8,
+        slug -> Nullable<Text>,
         collection_id -> Varchar,
         creator_address -> Varchar,
         collection_name -> Varchar,
@@ -11,6 +12,10 @@ diesel::table! {
         supply -> Int8,
         version -> Int8,
         metadata_uri -> Varchar,
+        verify -> Bool,
+        last_metadata_sync -> Nullable<Timestamp>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -23,6 +28,7 @@ diesel::table! {
         creator_address -> Varchar,
         collection_name -> Varchar,
         token_name -> Varchar,
+        attributes -> Nullable<Text>,
         supply -> Int8,
         version -> Int8,
         payee_address -> Varchar,
@@ -31,6 +37,8 @@ diesel::table! {
         metadata_uri -> Varchar,
         metadata_json -> Nullable<Varchar>,
         image -> Nullable<Varchar>,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 

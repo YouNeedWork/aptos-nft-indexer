@@ -31,8 +31,8 @@ impl AptosService {
         tx: Sender<Worker>,
     ) -> Self {
         // Create a new channel
-        // Do query database in runtime. and privade Vec<NFT> to insert databasse work
-        //let (tx,tx) = tokio::sync::mpsc::new();
+        // Do query database in runtime. and privade Vec<NFT> to insert
+        // databasse work let (tx,tx) = tokio::sync::mpsc::new();
         Self {
             cfg,
             indexer_db,
@@ -61,7 +61,8 @@ impl Service for AptosService {
                 .get()
                 .expect("couldn't get market_db connect from pool:");
 
-            let mut version: i64 = tokens::query_max_token_version(&mut mkdb).unwrap_or_default();
+            let mut version: i64 =
+                tokens::query_max_token_version(&mut mkdb).unwrap_or_default();
             let batch = 10000;
 
             loop {
@@ -69,10 +70,12 @@ impl Service for AptosService {
                 // Fetch market db for last_version
                 info!("Fetch bigger then {} version tokens", version);
 
-                // and fetch bigger then last_version colleact. and issert or repeact
-                let tokens =
-                    current_token_datas::query_bigger_then_version(&mut db, version, batch)
-                        .unwrap_or_default();
+                // and fetch bigger then last_version colleact. and issert or
+                // repeact
+                let tokens = current_token_datas::query_bigger_then_version(
+                    &mut db, version, batch,
+                )
+                .unwrap_or_default();
 
                 if tokens.len() == 0 {
                     let t = current_token_datas::query_bigger_then_version(
@@ -106,7 +109,10 @@ impl Service for AptosService {
                 version += 1;
 
                 trace!("end fetch nfts");
-                tokio::time::sleep(Duration::from_millis(cfg.fetch_millis as u64)).await;
+                tokio::time::sleep(Duration::from_millis(
+                    cfg.fetch_millis as u64,
+                ))
+                .await;
             }
         })
     }

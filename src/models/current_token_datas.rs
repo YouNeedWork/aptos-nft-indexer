@@ -58,7 +58,8 @@ pub fn query_nfts_by_owner(
 ) -> Result<Vec<(CurrentTokenData, CurrentTokenOwnership)>> {
     use crate::aptos_schema::*;
 
-    let query = current_token_datas::table.inner_join(current_token_ownerships::table);
+    let query =
+        current_token_datas::table.inner_join(current_token_ownerships::table);
     let query = query
         .filter(current_token_ownerships::owner_address.eq(address))
         .filter(current_token_ownerships::amount.gt(BigDecimal::from(0)));

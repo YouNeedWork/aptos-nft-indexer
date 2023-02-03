@@ -31,8 +31,8 @@ impl AptosService {
         tx: Sender<Worker>,
     ) -> Self {
         // Create a new channel
-        // Do query database in runtime. and privade Vec<NFT> to insert databasse work
-        //let (tx,tx) = tokio::sync::mpsc::new();
+        // Do query database in runtime. and privade Vec<NFT> to insert
+        // databasse work let (tx,tx) = tokio::sync::mpsc::new();
         Self {
             cfg,
             indexer_db,
@@ -62,7 +62,8 @@ impl Service for AptosService {
                 .expect("couldn't get market_db connect from pool:");
 
             // Fetch market db for last_version
-            let mut version: i64 = query_collections(&mut mkdb).unwrap_or_default();
+            let mut version: i64 =
+                query_collections(&mut mkdb).unwrap_or_default();
 
             loop {
                 use tokio::time::Duration;
@@ -70,10 +71,13 @@ impl Service for AptosService {
 
                 trace!("Fetch bigger then {} version collections", version);
 
-                // and fetch bigger then last_version colleact. and issert or repeact
+                // and fetch bigger then last_version colleact. and issert or
+                // repeact
                 let collections =
-                    current_collection_datas::query_bigger_then_version(&mut db, version)
-                        .unwrap_or_default();
+                    current_collection_datas::query_bigger_then_version(
+                        &mut db, version,
+                    )
+                    .unwrap_or_default();
 
                 trace!("The new batch is {} length", collections.len());
                 for collection in collections {
@@ -86,7 +90,10 @@ impl Service for AptosService {
                 }
 
                 trace!("end fetch nfts");
-                tokio::time::sleep(Duration::from_millis(cfg.fetch_millis as u64)).await;
+                tokio::time::sleep(Duration::from_millis(
+                    cfg.fetch_millis as u64,
+                ))
+                .await;
             }
         })
     }

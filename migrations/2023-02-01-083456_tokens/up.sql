@@ -8,6 +8,7 @@ CREATE TABLE tokens (
     "creator_address" varchar NOT NULL,
     "collection_name" varchar NOT NULL,
     "token_name" varchar NOT NULL,
+    "attributes" text,
     "supply" bigint NOT NULL,
     "version" bigint NOT NULL,
     "payee_address" varchar NOT NULL,    
@@ -16,5 +17,7 @@ CREATE TABLE tokens (
     "metadata_uri" varchar NOT NULL,
     "metadata_json" varchar,
     "image" varchar,
+    "created_at" timestamp DEFAULT now(),
+    "updated_at" timestamp DEFAULT now(),    
     PRIMARY KEY ("id")
 );

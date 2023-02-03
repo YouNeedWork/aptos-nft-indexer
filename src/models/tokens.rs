@@ -19,6 +19,7 @@ pub struct TokenQuery {
     pub creator_address: String,
     pub collection_name: String,
     pub token_name: String,
+    pub attributes: Option<String>,
     pub supply: i64,
     pub version: i64,
     pub payee_address: String,
@@ -27,6 +28,8 @@ pub struct TokenQuery {
     pub metadata_uri: String,
     pub metadata_json: Option<String>,
     pub image: Option<String>,
+    pub created_at: Option<chrono::NaiveDateTime>,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
 #[derive(Insertable)]
@@ -38,6 +41,7 @@ pub struct TokenInsert {
     pub creator_address: String,
     pub collection_name: String,
     pub token_name: String,
+    pub attributes: Option<String>,
     pub supply: i64,
     pub version: i64,
     pub payee_address: String,
@@ -46,6 +50,8 @@ pub struct TokenInsert {
     pub metadata_uri: String,
     pub metadata_json: Option<String>,
     pub image: Option<String>,
+    pub created_at: Option<chrono::NaiveDateTime>,
+    pub updated_at: Option<chrono::NaiveDateTime>,
 }
 
 impl From<CurrentTokenData> for TokenInsert {
@@ -57,14 +63,23 @@ impl From<CurrentTokenData> for TokenInsert {
             token_name: v.name,
             creator_address: v.creator_address,
             collection_name: v.collection_name,
+            attributes: None,
             supply: v.supply.to_i64().unwrap(),
             payee_address: v.payee_address,
-            royalty_points_numerator: v.royalty_points_numerator.to_i64().unwrap(),
-            royalty_points_denominator: v.royalty_points_denominator.to_i64().unwrap(),
+            royalty_points_numerator: v
+                .royalty_points_numerator
+                .to_i64()
+                .unwrap(),
+            royalty_points_denominator: v
+                .royalty_points_denominator
+                .to_i64()
+                .unwrap(),
             version: v.last_transaction_version,
             metadata_uri: v.metadata_uri,
             metadata_json: None,
             image: None,
+            created_at: None,
+            updated_at: None,
         }
     }
 }
