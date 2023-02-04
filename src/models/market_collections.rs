@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use bigdecimal::BigDecimal;
 use bigdecimal::ToPrimitive;
 use diesel::associations::HasTable;
 use diesel::prelude::*;
@@ -36,6 +37,12 @@ pub struct CollectionQuery {
     pub supply: i64,
     pub version: i64,
     pub metadata_uri: String,
+    pub floor_sell_id: Option<i32>,
+    pub floor_sell_value: Option<BigDecimal>,
+    pub floor_sell_coin_id: Option<i32>,
+    pub best_bid_id: Option<i32>,
+    pub best_bid_value: Option<BigDecimal>,
+    pub best_bid_coin_id: Option<i32>,
     pub verify: bool,
     pub last_metadata_sync: Option<chrono::NaiveDateTime>,
     pub created_at: Option<chrono::NaiveDateTime>,
@@ -54,6 +61,12 @@ pub struct CollectionInsert {
     pub supply: i64,
     pub version: i64,
     pub metadata_uri: String,
+    pub floor_sell_id: Option<i32>,
+    pub floor_sell_value: Option<BigDecimal>,
+    pub floor_sell_coin_id: Option<i32>,
+    pub best_bid_id: Option<i32>,
+    pub best_bid_value: Option<BigDecimal>,
+    pub best_bid_coin_id: Option<i32>,
     pub verify: bool,
     pub last_metadata_sync: Option<chrono::NaiveDateTime>,
     pub created_at: Option<chrono::NaiveDateTime>,
@@ -72,6 +85,12 @@ impl From<CurrentCollectionDataQuery> for CollectionInsert {
             supply: v.supply.to_i64().unwrap(),
             version: v.last_transaction_version,
             metadata_uri: v.metadata_uri,
+            floor_sell_id: None,
+            floor_sell_value: None,
+            floor_sell_coin_id: None,
+            best_bid_id: None,
+            best_bid_value: None,
+            best_bid_coin_id: None,
             verify: false,
             last_metadata_sync: None,
             created_at: None,

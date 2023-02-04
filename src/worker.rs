@@ -2,11 +2,10 @@ use anyhow::Result;
 use async_channel::Receiver;
 use async_trait::async_trait;
 use aws_sdk_s3::Client;
-use log::{info, trace};
-use tokio::io::AsyncWriteExt;
 use tokio::{runtime::Handle, task::JoinHandle};
 
-use crate::aws::upload_object;
+use log::{info, trace};
+
 use crate::db::DbPool;
 use crate::models::current_collection_datas::{
     query_info_by_collection_address_name, CurrentCollectionDataQuery,
@@ -24,20 +23,20 @@ pub trait WorkerTrait {
 
 #[derive(Debug)]
 pub enum Worker {
-    COLLECTION(CurrentCollectionDataQuery),
-    NEW_NFTS_OR_OWNER_CHANGED(CurrentTokenData), /* TODO all type here are
-                                                  * holder DB origin
-                                                  * type.like(DB) */
+    Collction(CurrentCollectionDataQuery),
+    NewNftsOrOwnerCanged(CurrentTokenData), /* TODO all type here are
+                                             * holder DB origin
+                                             * type.like(DB) */
 }
 
 impl From<CurrentCollectionDataQuery> for Worker {
     fn from(value: CurrentCollectionDataQuery) -> Self {
-        Self::COLLECTION(value)
+        Self::Collction(value)
     }
 }
 
 impl From<CurrentTokenData> for Worker {
-    fn from(v: CurrentTokenData) -> Self { Self::NEW_NFTS_OR_OWNER_CHANGED(v) }
+    fn from(v: CurrentTokenData) -> Self { Self::NewNftsOrOwnerCanged(v) }
 }
 
 #[derive(Clone, Debug)]
@@ -83,14 +82,14 @@ impl WorkerTrait for WorkerService {
                 tokio::select! {
                     new_worker = rx.recv() => {
 			match new_worker {
-			    Ok(Worker::COLLECTION(c)) => {
+			    Ok(Worker::Collction(c)) => {
 				let id = c.collection_data_id_hash.clone();
 				trace!("Got new collection_id {}",id);
 				// Insert to
 				insert_collection(&mut db,CollectionInsert::from(c)).expect("Fail to insert db");
 				trace!("finesh the collection_id {}",id);
 			    }
-			    Ok(Worker::NEW_NFTS_OR_OWNER_CHANGED(nft)) => {
+			    Ok(Worker::NewNftsOrOwnerCanged(nft)) => {
 				let id = nft.token_data_id_hash.clone();
 				trace!("Got new nft id:{}",&id);
 				if query_token_by_hash_id(&mut db,&id).is_err() {
@@ -100,11 +99,12 @@ impl WorkerTrait for WorkerService {
 				    token.collection_id = collection.collection_data_id_hash;
 				    // get resoures type.
 				    let metadata_uri = token.metadata_uri.trim();
-				    let name = format!("{}.png",id.clone());
+				    //let name = format!("{}.png",id.clone());
 				    if metadata_uri.ends_with(".json") {
 					//erc721 metadata_uri
 					token.metadata_json = Some(String::from("123"));
-					//token.image_uri = 
+					//token.image_uri =
+					info!("Got erc721 metadata {}",metadata_uri);
 				    } else {
 					// let mut file = tokio::fs::File::create(&name).await?;
 					// let bytes = reqwest::get(metadata_uri.clone()).await?
