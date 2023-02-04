@@ -8,7 +8,7 @@ use crate::worker::Worker;
 use anyhow::Result;
 use async_channel::Sender;
 use async_trait::async_trait;
-use log::{info, trace};
+use log::trace;
 use tokio::runtime::Handle;
 use tokio::task::JoinHandle;
 

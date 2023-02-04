@@ -36,7 +36,9 @@ impl From<CurrentCollectionDataQuery> for Worker {
 }
 
 impl From<CurrentTokenData> for Worker {
-    fn from(v: CurrentTokenData) -> Self { Self::NewNftsOrOwnerCanged(v) }
+    fn from(v: CurrentTokenData) -> Self {
+        Self::NewNftsOrOwnerCanged(v)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -44,7 +46,7 @@ pub struct WorkerService {
     rx: Receiver<Worker>,
     db: DbPool,
     indexer_db: DbPool,
-    aws_s3: Client,
+    _aws_s3: Client,
 }
 
 impl WorkerService {
@@ -59,7 +61,7 @@ impl WorkerService {
             rx,
             db,
             indexer_db,
-            aws_s3: client,
+            _aws_s3: client,
         }
     }
 }
@@ -70,7 +72,7 @@ impl WorkerTrait for WorkerService {
         let rx = self.rx.clone();
         let mkdb = self.db.clone();
         let indexer_db = self.indexer_db.clone();
-        let s3 = self.aws_s3.clone();
+        //let s3 = self.aws_s3.clone();
 
         runtime_handle.spawn(async move {
 	    let mut db = mkdb
