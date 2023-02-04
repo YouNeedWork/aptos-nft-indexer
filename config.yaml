@@ -1,0 +1,6 @@
+market_posgres: "postgres://cargos:12345678@localhost/cargos"
+indexer_db_posgres: "postgres://postgres:12345678@localhost/postgres"
+work_number: 16
+fetch_millis: 1000
+key: "AKIAT7L2KGCBRVYWHAOG"
+secret: "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"
