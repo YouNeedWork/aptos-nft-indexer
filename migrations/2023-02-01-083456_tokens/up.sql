@@ -14,6 +14,7 @@ CREATE TABLE tokens (
     "payee_address" varchar NOT NULL,    
     "royalty_points_numerator" bigint NOT NULL,
     "royalty_points_denominator" bigint NOT NULL,
+    "onwer_address" varchar,
     "metadata_uri" varchar NOT NULL,
     "metadata_json" varchar,
     "image" varchar,
