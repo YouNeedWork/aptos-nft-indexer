@@ -1,6 +1,6 @@
 -- Your SQL goes here
 
-CREATE TABLE IF NOT EXISTS doamins
+CREATE TABLE IF NOT EXISTS domains
 (
     id serial,
     chain_id bigint NOT NULL,
