@@ -19,5 +19,6 @@ CREATE TABLE IF NOT EXISTS domains
     created_at timestamp DEFAULT now(),
     updated_at timestamp DEFAULT now(),
     PRIMARY KEY (version,id)
-)
+);
 
+CREATE UNIQUE INDEX ttyp_index ON domains USING btree (domain, sub_domain)

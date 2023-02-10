@@ -20,6 +20,7 @@ diesel::table! {
         token_amount -> Numeric,
         coin_type -> Nullable<Text>,
         coin_amount -> Nullable<Numeric>,
+        transaction_timestamp -> Timestamp,
         created_at -> Nullable<Timestamp>,
         updated_at -> Nullable<Timestamp>,
     }
@@ -67,7 +68,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    doamins (version, id) {
+    domains (version, id) {
         id -> Int4,
         chain_id -> Int8,
         hash_id -> Nullable<Text>,
@@ -130,7 +131,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     bids,
     coins,
     collections,
-    doamins,
+    domains,
     lists,
     tokens,
 );

@@ -22,3 +22,6 @@ CREATE TABLE tokens (
     "updated_at" timestamp DEFAULT now(),    
     PRIMARY KEY ("id")
 );
+
+
+CREATE UNIQUE INDEX token_id_index ON tokens USING btree (token_id)

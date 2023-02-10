@@ -23,4 +23,6 @@ CREATE TABLE IF NOT EXISTS collections
     created_at timestamp DEFAULT now(),
     updated_at timestamp DEFAULT now(),
     CONSTRAINT "PK_ID" PRIMARY KEY (id)
-)
+);
+
+CREATE UNIQUE INDEX collection_id_index ON collections USING btree (collection_id)

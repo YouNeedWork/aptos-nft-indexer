@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS activities
     token_amount NUMERIC NOT NULL,
     coin_type TEXT,
     coin_amount NUMERIC,
+    transaction_timestamp timestamp NOT NULL,
     created_at timestamp DEFAULT now(),
     updated_at timestamp DEFAULT now(),
 
@@ -34,5 +35,6 @@ CREATE INDEX ta_addr_coll_name_pv_index ON activities (
   name,
   property_version
 );
+CREATE UNIQUE INDEX ta_addr_coll_name_pv_index2 ON activities USING btree (version, creator_address, collection_name, property_version);
 CREATE INDEX ta_tdih_pv_index ON activities (token_data_id_hash, property_version);
 CREATE INDEX ta_version_index ON activities (version);
