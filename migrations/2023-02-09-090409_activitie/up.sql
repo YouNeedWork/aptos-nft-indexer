@@ -35,6 +35,10 @@ CREATE INDEX ta_addr_coll_name_pv_index ON activities (
   name,
   property_version
 );
-CREATE UNIQUE INDEX ta_addr_coll_name_pv_index2 ON activities USING btree (version, creator_address, collection_name, property_version);
+CREATE UNIQUE INDEX event_index ON activities USING btree (version, 
+event_account_address,
+event_creation_number,
+event_sequence_number
+);
 CREATE INDEX ta_tdih_pv_index ON activities (token_data_id_hash, property_version);
 CREATE INDEX ta_version_index ON activities (version);
